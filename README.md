@@ -5,7 +5,6 @@ Terraform Provider for [Contentful's](https://www.contentful.com) Content Manage
 
 # About
 
-
 [Contentful](https://www.contentful.com) provides a content infrastructure for digital teams to power content in websites, apps, and devices. Unlike a CMS, Contentful was built to integrate with the modern software stack. It offers a central hub for structured content, powerful management and delivery APIs, and a customizable web app that enable developers and content creators to ship digital products faster.
 
 [Terraform](https://www.terraform.io) is a tool for building, changing, and versioning infrastructure safely and efficiently. Terraform can manage existing and popular service providers as well as custom in-house solutions.
@@ -13,6 +12,7 @@ Terraform Provider for [Contentful's](https://www.contentful.com) Content Manage
 # Features
 
 Create, update and delete Contentful resources such as:
+
 - [x] Spaces
 - [ ] Content Types
 - [x] API Keys
@@ -46,9 +46,9 @@ Make sure you have your Content Management API Token and the organization ID bef
 ```
 
 # Using the provider
-Build the binary
 
-    $ go build -o terraform-provider-contentful
+To build the binary locally setup Go and Go Tools and run `build.sh`
+To build the binary to be used on golang based Docker (such as `hashicorp/terraform` images), run `buildForDocker.sh`.
 
 Add it to your ~/.terraformrc (or %APPDATA%/terraform.rc for Windows)
 
@@ -72,6 +72,7 @@ Run the terraform plan
     terraform plan -out=contentful.plan
 
 Check the changes
+
 ```
 The refreshed state will be used to calculate this plan, but will not be
 persisted to local or remote state storage.
@@ -98,6 +99,7 @@ Plan: 1 to add, 0 to change, 0 to destroy.
 ```
 
 Apply the plan
+
 ```
 contentful_space.test: Creating...
   default_locale: "" => "en"
@@ -126,11 +128,13 @@ To enable higher verbose mode
 ## Documentation/References
 
 ### Hashicorp
+
 [Terraform plugins](https://www.terraform.io/docs/plugins/basics.html)
 
 [Writing custom terraform providers](https://www.hashicorp.com/blog/writing-custom-terraform-providers)
 
 ### Other references
+
 Julien Fabre: [Writing a Terraform provider](http://blog.jfabre.net/2017/01/22/writing-terraform-provider)
 
 ## Support
