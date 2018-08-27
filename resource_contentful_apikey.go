@@ -1,8 +1,11 @@
 package main
 
 import (
-	"github.com/hashicorp/terraform/helper/schema"
+	"fmt"
+	"strings"
+
 	contentful "github.com/contentful-labs/contentful-go"
+	"github.com/hashicorp/terraform/helper/schema"
 )
 
 func resourceContentfulAPIKey() *schema.Resource {
@@ -11,6 +14,9 @@ func resourceContentfulAPIKey() *schema.Resource {
 		Read:   resourceReadAPIKey,
 		Update: resourceUpdateAPIKey,
 		Delete: resourceDeleteAPIKey,
+		Importer: &schema.ResourceImporter{
+			State: resourceAPIKeyImport,
+		},
 
 		Schema: map[string]*schema.Schema{
 			"version": &schema.Schema{
@@ -28,6 +34,10 @@ func resourceContentfulAPIKey() *schema.Resource {
 			"description": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
+			},
+			"access_token": &schema.Schema{
+				Type:     schema.TypeString,
+				Computed: true,
 			},
 		},
 	}
@@ -59,7 +69,6 @@ func resourceUpdateAPIKey(d *schema.ResourceData, m interface{}) (err error) {
 	client := m.(*contentful.Contentful)
 	spaceID := d.Get("space_id").(string)
 	apiKeyID := d.Id()
-
 	apiKey, err := client.APIKeys.Get(spaceID, apiKeyID)
 	if err != nil {
 		return err
@@ -126,5 +135,24 @@ func setAPIKeyProperties(d *schema.ResourceData, apiKey *contentful.APIKey) erro
 		return err
 	}
 
+	if err := d.Set("access_token", apiKey.AccessToken); err != nil {
+		return err
+	}
+
 	return nil
+}
+
+func resourceAPIKeyImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
+	idAttr := strings.SplitN(d.Id(), "/", 2)
+	if len(idAttr) == 2 {
+		d.Set("space_id", idAttr[0])
+		d.Set("name", idAttr[1])
+	} else {
+		return nil, fmt.Errorf("invalid id %q specified, should be in format \"spaceId/keyId\" for import", d.Id())
+	}
+
+	if err := resourceReadAPIKey(d, meta); err != nil {
+		return nil, err
+	}
+	return []*schema.ResourceData{d}, nil
 }
