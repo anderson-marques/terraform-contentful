@@ -1,3 +1,3 @@
 #!/bin/bash
-./install-dependencies.sh
+rm -rf build/*
 go build -o build/terraform-provider-contentful

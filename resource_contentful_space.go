@@ -1,8 +1,8 @@
 package main
 
 import (
-	"github.com/hashicorp/terraform/helper/schema"
 	contentful "github.com/contentful-labs/contentful-go"
+	"github.com/hashicorp/terraform/helper/schema"
 )
 
 func resourceContentfulSpace() *schema.Resource {
@@ -11,6 +11,9 @@ func resourceContentfulSpace() *schema.Resource {
 		Read:   resourceSpaceRead,
 		Update: resourceSpaceUpdate,
 		Delete: resourceSpaceDelete,
+		Importer: &schema.ResourceImporter{
+			State: resourceSpaceImport,
+		},
 
 		Schema: map[string]*schema.Schema{
 			"version": &schema.Schema{
@@ -58,12 +61,15 @@ func resourceSpaceRead(d *schema.ResourceData, m interface{}) error {
 	client := m.(*contentful.Contentful)
 	spaceID := d.Id()
 
-	_, err := client.Spaces.Get(spaceID)
+	space, err := client.Spaces.Get(spaceID)
 	if _, ok := err.(contentful.NotFoundError); ok {
 		d.SetId("")
 		return nil
 	}
-
+	d.Set("Id", space.Sys.ID)
+	d.Set("name", space.Name)
+	d.Set("version", space.Sys.Version)
+	d.Set("default_locale", space.DefaultLocale)
 	return err
 }
 
@@ -115,4 +121,11 @@ func updateSpaceProperties(d *schema.ResourceData, space *contentful.Space) erro
 	}
 
 	return nil
+}
+
+func resourceSpaceImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
+	if err := resourceSpaceRead(d, meta); err != nil {
+		return nil, err
+	}
+	return []*schema.ResourceData{d}, nil
 }
