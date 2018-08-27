@@ -1,2 +1,4 @@
 terraform-provider-contentful
 .envrc
+pkg
+src
